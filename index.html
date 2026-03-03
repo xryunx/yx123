@@ -2,35 +2,25 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>周小芸ㄉ瓜單</title>
+<title>YUN</title>
 <style>
 body { margin:0; padding:0; font-family:"Microsoft JhengHei",sans-serif; background:#f0e6d2; color:#4a3f2f;}
 .container { max-width:1000px; margin:30px auto; padding:20px; background:rgba(74,63,47,0.05); border-radius:15px; backdrop-filter:blur(4px);}
-input, button { padding:8px 12px; margin:5px; border-radius:8px; border:none; font-size:14px;}
-input { background:#e6d9c4; color:#4a3f2f;}
-button { background:#c9b599; color:#4a3f2f; cursor:pointer;}
+button { padding:8px 12px; margin:3px; border-radius:8px; border:none; font-size:14px; cursor:pointer;}
 button:hover { background:#bfa987;}
-button.type-btn { background:#d0c0a0; margin:3px; color:#4a3f2f; }
+button.type-btn { background:#d0c0a0; color:#4a3f2f; }
 button.type-btn.selected { background:#4a3f2f; color:#f0e6d2; }
 table { width:100%; margin-top:20px; border-collapse:collapse; font-size:14px; }
 th, td { padding:10px; text-align:center; color:#4a3f2f; }
 th { background:#d0c0a0; }
 tr:nth-child(even) { background:rgba(74,63,47,0.03); }
 .copy-btn { background:#b58a70; color:#fff; cursor:pointer;}
-.random-box { margin-top:20px; padding:15px; background:rgba(74,63,47,0.08); border-radius:10px; text-align:center; font-size:20px; font-weight:bold; color:#4a3f2f; opacity:0; transition:opacity 0.8s;}
-.random-box.show { opacity:1;}
 #genreButtons { display:flex; flex-wrap:wrap; margin-top:10px; }
 </style>
 </head>
 <body>
 <div class="container">
-<h1>🎵時間有限 快選給我R</h1>
-<input type="text" id="songName" placeholder="歌曲名稱">
-<input type="text" id="artist" placeholder="歌手">
-<input type="text" id="genreInput" placeholder="類型 (多個用分號 ; 分隔)">
-<button onclick="addSong()">新增歌曲</button>
-<button onclick="randomSong()">🎲 隨機抽歌</button>
-<button onclick="resetFilter()">重置篩選</button>
+<h1>🎼周小芸ㄉ歌單</h1>
 
 <div id="genreButtons"></div>
 
@@ -40,8 +30,6 @@ tr:nth-child(even) { background:rgba(74,63,47,0.03); }
 </thead>
 <tbody id="songTable"></tbody>
 </table>
-
-<div class="random-box" id="randomResult">還沒抽歌 🎵</div>
 </div>
 
 <!-- PapaParse -->
@@ -52,7 +40,7 @@ let songs=[], filteredSongs=null, genreList=[];
 const gsheetCSV = "https://docs.google.com/spreadsheets/d/1YIUx1gfY1xczRMN5fr-U_q-rIDZxyTaJc2UZejLczQk/export?format=csv";
 const genreButtonsDiv = document.getElementById("genreButtons");
 
-// 讀 CSV 用 PapaParse
+// 讀 CSV
 Papa.parse(gsheetCSV, {
     download: true,
     header: true,
@@ -86,7 +74,7 @@ function createGenreButtons(){
     });
 }
 
-// 按類型篩選
+// 類型篩選
 function toggleGenre(btn){
     btn.classList.toggle("selected");
     const selectedGenres = Array.from(document.getElementsByClassName("type-btn"))
@@ -98,25 +86,6 @@ function toggleGenre(btn){
         return gs.some(g=>selectedGenres.includes(g));
     });
     renderTable(filteredSongs);
-}
-
-// 新增歌曲
-function addSong(){
-    const name=document.getElementById("songName").value.trim();
-    const artist=document.getElementById("artist").value.trim();
-    const genreStr=document.getElementById("genreInput").value.trim();
-    if(!name||!artist||!genreStr){ alert("請填完整資訊"); return; }
-    const genres=genreStr.split(";").map(g=>g.trim()).filter(g=>g);
-    songs.push({name, artist, genre:genres});
-    genres.forEach(g=>{
-        if(g && !genreList.includes(g)){
-            genreList.push(g);
-            createGenreButtons();
-        }
-    });
-    filteredSongs=null;
-    renderTable();
-    clearInputs();
 }
 
 // 渲染表格
@@ -140,26 +109,6 @@ function resetFilter(){
     filteredSongs=null;
     Array.from(document.getElementsByClassName("type-btn")).forEach(btn=>btn.classList.remove("selected"));
     renderTable();
-}
-
-// 清空輸入框
-function clearInputs(){
-    document.getElementById("songName").value="";
-    document.getElementById("artist").value="";
-    document.getElementById("genreInput").value="";
-}
-
-// 隨機抽歌
-function randomSong(){
-    const list = filteredSongs?.length ? filteredSongs : songs;
-    if(list.length===0){ alert("歌單空的"); return; }
-    const song = list[Math.floor(Math.random()*list.length)];
-    const box = document.getElementById("randomResult");
-    box.classList.remove("show");
-    setTimeout(()=>{
-        box.innerHTML = `🎶 ${song.name} - ${song.artist} (${song.genre.join("; ")})`;
-        box.classList.add("show");
-    },50);
 }
 </script>
 </body>
