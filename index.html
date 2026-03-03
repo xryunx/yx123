@@ -5,71 +5,76 @@
 <title>周小芸的瓜單</title>
 <style>
 body {
-    background: linear-gradient(135deg,#2e2f60,#4a4a8f,#6a63b3);
+    margin: 0;
+    padding: 0;
     font-family: "Microsoft JhengHei", sans-serif;
-    color: #ffffff;
-    padding: 20px;
+    background: #f0e6d2; /* 淡駝色背景 */
+    color: #4a3f2f; /* 深棕文字，清楚可讀 */
 }
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 15px 30px;
+    background: rgba(74,63,47,0.1); /* 半透明深棕 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 h1 {
-    color: #dcdcff;
-    text-shadow: none;
+    font-size: 26px;
+    color: #4a3f2f;
+    margin: 0;
 }
 a.nav-link {
-    color: #ffffff;
+    color: #4a3f2f;
     text-decoration: none;
     font-weight: bold;
 }
 a.nav-link:hover { text-decoration: underline; }
 .container {
-    background: rgba(255,255,255,0.08);
+    max-width: 1000px;
+    margin: 30px auto;
     padding: 20px;
+    background: rgba(74,63,47,0.05); /* 淡棕半透明容器 */
     border-radius: 15px;
-    backdrop-filter: blur(6px);
-    margin-top: 20px;
+    backdrop-filter: blur(4px);
 }
 input, button {
-    padding: 8px;
+    padding: 8px 12px;
     margin: 5px;
     border-radius: 8px;
     border: none;
+    font-size: 14px;
 }
-input { background: #4a4a8f; color: #ffffff; }
-button { background: #7a6dff; color: #fff; cursor: pointer; }
-button:hover { background: #9a8fff; }
-button.type-btn { background: #5c57a0; margin: 3px; color: #fff; }
-button.type-btn.selected { background: #ffdfff; color: #4a4a8f; }
-table { width: 100%; margin-top: 20px; border-collapse: collapse; }
-th, td { padding: 10px; text-align: center; color: #ffffff; }
-th { background: #5c57a0; }
-tr:nth-child(even) { background: rgba(255,255,255,0.05); }
-.delete-btn { background: #ff7a8f; color: #fff; }
+input { background: #e6d9c4; color: #4a3f2f; }
+button { background: #c9b599; color: #4a3f2f; cursor: pointer; }
+button:hover { background: #bfa987; }
+button.type-btn { background: #d0c0a0; margin: 3px; color: #4a3f2f; }
+button.type-btn.selected { background: #4a3f2f; color: #f0e6d2; }
+table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 10px; text-align: center; color: #4a3f2f; }
+th { background: #d0c0a0; }
+tr:nth-child(even) { background: rgba(74,63,47,0.03); }
+.delete-btn { background: #b58a70; color: #fff; }
 .random-box {
     margin-top: 20px;
     padding: 15px;
-    background: rgba(255,255,255,0.12);
+    background: rgba(74,63,47,0.08);
     border-radius: 10px;
     text-align: center;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: bold;
-    color: #ffffff;
-    text-shadow: none;
+    color: #4a3f2f;
     opacity: 0;
     transition: opacity 0.8s ease-in-out;
 }
-.random-box.show {
-    opacity: 1;
-}
+.random-box.show { opacity: 1; }
+#genreButtons { display: flex; flex-wrap: wrap; margin-top: 10px; }
 </style>
 </head>
 <body>
 
 <header>
-<h1>🎧 快選給我R</h1>
+<h1>🎵 我的歌單網頁</h1>
 <a class="nav-link" href="#">首頁</a>
 </header>
 
@@ -80,7 +85,7 @@ tr:nth-child(even) { background: rgba(255,255,255,0.05); }
 <button onclick="addSong()">新增歌曲</button>
 <button onclick="randomSong()">🎲 隨機抽歌</button>
 
-<div id="genreButtons" style="margin-top:15px;"></div>
+<div id="genreButtons"></div>
 <button onclick="resetFilter()">重置篩選</button>
 
 <table>
@@ -101,12 +106,9 @@ tr:nth-child(even) { background: rgba(255,255,255,0.05); }
 <script>
 let songs = [];
 let filteredSongs = null;
-// 這裡設定你要的篩選類型
-const genreList = ["悲傷","抒情","男歌手","女歌手","甜歌","經典"];
-// Google Sheet CSV 連結
+const genreList = ["新歌","女歌手","男歌手","抒情","流行","甜歌","經典"];
 const gsheetCSV = "https://docs.google.com/spreadsheets/d/1YIUx1gfY1xczRMN5fr-U_q-rIDZxyTaJc2UZejLczQk/export?format=csv";
 
-// 產生類型按鈕
 const genreButtonsDiv = document.getElementById("genreButtons");
 genreList.forEach(genre=>{
     const btn = document.createElement("button");
@@ -121,7 +123,6 @@ function toggleGenre(btn){
     multiFilter();
 }
 
-// 讀取 CSV
 fetch(gsheetCSV)
 .then(response => response.text())
 .then(data => {
