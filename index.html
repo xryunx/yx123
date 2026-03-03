@@ -4,59 +4,27 @@
 <meta charset="UTF-8">
 <title>周小芸ㄉ瓜單</title>
 <style>
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "Microsoft JhengHei", sans-serif;
-    background: #f0e6d2;
-    color: #4a3f2f;
-}
-.container {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 20px;
-    background: rgba(74,63,47,0.05);
-    border-radius: 15px;
-    backdrop-filter: blur(4px);
-}
-input, button {
-    padding: 8px 12px;
-    margin: 5px;
-    border-radius: 8px;
-    border: none;
-    font-size: 14px;
-}
-input { background: #e6d9c4; color: #4a3f2f; }
-button { background: #c9b599; color: #4a3f2f; cursor: pointer; }
-button:hover { background: #bfa987; }
-button.type-btn { background: #d0c0a0; margin: 3px; color: #4a3f2f; }
-button.type-btn.selected { background: #4a3f2f; color: #f0e6d2; }
-table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 14px; }
-th, td { padding: 10px; text-align: center; color: #4a3f2f; }
-th { background: #d0c0a0; }
-tr:nth-child(even) { background: rgba(74,63,47,0.03); }
-.copy-btn { background: #b58a70; color: #fff; cursor: pointer; }
-.random-box {
-    margin-top: 20px;
-    padding: 15px;
-    background: rgba(74,63,47,0.08);
-    border-radius: 10px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: #4a3f2f;
-    opacity: 0;
-    transition: opacity 0.8s ease-in-out;
-}
-.random-box.show { opacity: 1; }
-#genreButtons { display: flex; flex-wrap: wrap; margin-top: 10px; }
+body { margin:0; padding:0; font-family:"Microsoft JhengHei",sans-serif; background:#f0e6d2; color:#4a3f2f;}
+.container { max-width:1000px; margin:30px auto; padding:20px; background:rgba(74,63,47,0.05); border-radius:15px; backdrop-filter:blur(4px);}
+input, button { padding:8px 12px; margin:5px; border-radius:8px; border:none; font-size:14px;}
+input { background:#e6d9c4; color:#4a3f2f;}
+button { background:#c9b599; color:#4a3f2f; cursor:pointer;}
+button:hover { background:#bfa987;}
+button.type-btn { background:#d0c0a0; margin:3px; color:#4a3f2f; }
+button.type-btn.selected { background:#4a3f2f; color:#f0e6d2; }
+table { width:100%; margin-top:20px; border-collapse:collapse; font-size:14px; }
+th, td { padding:10px; text-align:center; color:#4a3f2f; }
+th { background:#d0c0a0; }
+tr:nth-child(even) { background:rgba(74,63,47,0.03); }
+.copy-btn { background:#b58a70; color:#fff; cursor:pointer;}
+.random-box { margin-top:20px; padding:15px; background:rgba(74,63,47,0.08); border-radius:10px; text-align:center; font-size:20px; font-weight:bold; color:#4a3f2f; opacity:0; transition:opacity 0.8s;}
+.random-box.show { opacity:1;}
+#genreButtons { display:flex; flex-wrap:wrap; margin-top:10px; }
 </style>
 </head>
 <body>
-
 <div class="container">
-<h1>快選給我R</h1>
-
+<h1>🎵時間有限 快選給我R</h1>
 <input type="text" id="songName" placeholder="歌曲名稱">
 <input type="text" id="artist" placeholder="歌手">
 <input type="text" id="genreInput" placeholder="類型 (多個用分號 ; 分隔)">
@@ -68,12 +36,7 @@ tr:nth-child(even) { background: rgba(74,63,47,0.03); }
 
 <table>
 <thead>
-<tr>
-<th>歌曲</th>
-<th>歌手</th>
-<th>類型</th>
-<th>複製</th>
-</tr>
+<tr><th>歌曲</th><th>歌手</th><th>類型</th><th>複製</th></tr>
 </thead>
 <tbody id="songTable"></tbody>
 </table>
@@ -82,11 +45,8 @@ tr:nth-child(even) { background: rgba(74,63,47,0.03); }
 </div>
 
 <script>
-let songs = [];
-let filteredSongs = null;
-let genreList = [];
-const gsheetCSV = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID_HERE/export?format=csv";
-
+let songs=[], filteredSongs=null, genreList=[];
+const gsheetCSV = "https://docs.google.com/spreadsheets/d/1YIUx1gfY1xczRMN5fr-U_q-rIDZxyTaJc2UZejLczQk/export?format=csv";
 const genreButtonsDiv = document.getElementById("genreButtons");
 
 // 讀 CSV
@@ -95,11 +55,14 @@ fetch(gsheetCSV)
 .then(data=>{
     const rows = data.split("\n");
     rows.slice(1).forEach(row=>{
-        const cols = row.split(";");
+        const cols = row.split(",");
         if(cols.length>=3){
-            const song = {name: cols[0].trim(), artist: cols[1].trim(), genre: cols.slice(2).map(g=>g.trim()).filter(g=>g)};
+            const songName = cols[0].trim();
+            const artist = cols[1].trim();
+            const genres = cols.slice(2).map(g=>g.trim()).filter(g=>g);
+            const song = {name:songName, artist:artist, genre:genres};
             songs.push(song);
-            song.genre.forEach(g=>{
+            genres.forEach(g=>{
                 if(g && !genreList.includes(g)) genreList.push(g);
             });
         }
@@ -107,16 +70,16 @@ fetch(gsheetCSV)
     createGenreButtons();
     renderTable();
 })
-.catch(err=>console.error("CSV 載入失敗:", err));
+.catch(err=>console.error("CSV 載入失敗:",err));
 
 // 建立類型按鈕
 function createGenreButtons(){
     genreButtonsDiv.innerHTML="";
     genreList.forEach(genre=>{
-        const btn = document.createElement("button");
-        btn.innerText = genre;
-        btn.className = "type-btn";
-        btn.onclick = ()=> toggleGenre(btn);
+        const btn=document.createElement("button");
+        btn.innerText=genre;
+        btn.className="type-btn";
+        btn.onclick=()=> toggleGenre(btn);
         genreButtonsDiv.appendChild(btn);
     });
 }
@@ -137,12 +100,12 @@ function toggleGenre(btn){
 
 // 新增歌曲
 function addSong(){
-    const name = document.getElementById("songName").value.trim();
-    const artist = document.getElementById("artist").value.trim();
-    const genreStr = document.getElementById("genreInput").value.trim();
-    if(!name || !artist || !genreStr){ alert("請填完整資訊"); return; }
-    const genres = genreStr.split(";").map(g=>g.trim()).filter(g=>g);
-    songs.push({name, artist, genre: genres});
+    const name=document.getElementById("songName").value.trim();
+    const artist=document.getElementById("artist").value.trim();
+    const genreStr=document.getElementById("genreInput").value.trim();
+    if(!name||!artist||!genreStr){ alert("請填完整資訊"); return; }
+    const genres=genreStr.split(";").map(g=>g.trim()).filter(g=>g);
+    songs.push({name, artist, genre:genres});
     genres.forEach(g=>{
         if(g && !genreList.includes(g)){
             genreList.push(g);
@@ -156,26 +119,18 @@ function addSong(){
 
 // 渲染表格
 function renderTable(list=songs){
-    const table = document.getElementById("songTable");
+    const table=document.getElementById("songTable");
     table.innerHTML="";
     list.forEach((song,index)=>{
-        table.innerHTML += `
-        <tr>
-        <td>${song.name}</td>
-        <td>${song.artist}</td>
-        <td>${song.genre.join("; ")}</td>
-        <td><button class="copy-btn" onclick="copyRow(${index})">📋 複製</button></td>
-        </tr>`;
+        table.innerHTML+=`<tr><td>${song.name}</td><td>${song.artist}</td><td>${song.genre.join("; ")}</td><td><button class="copy-btn" onclick="copyRow(${index})">📋 複製</button></td></tr>`;
     });
 }
 
 // 複製單行
 function copyRow(index){
-    const list = filteredSongs || songs;
-    const song = list[index];
-    navigator.clipboard.writeText(`${song.name} - ${song.artist}`)
-    .then(()=> alert("已複製到剪貼簿!"))
-    .catch(()=> alert("複製失敗"));
+    const list=filteredSongs||songs;
+    const song=list[index];
+    navigator.clipboard.writeText(`${song.name} - ${song.artist}`).then(()=>alert("已複製到剪貼簿!")).catch(()=>alert("複製失敗"));
 }
 
 // 重置篩選
@@ -194,17 +149,14 @@ function clearInputs(){
 
 // 隨機抽歌
 function randomSong(){
-    const list = filteredSongs || songs;
+    const list=filteredSongs||songs;
     if(list.length===0){ alert("歌單空的"); return; }
-    const randomIndex = Math.floor(Math.random()*list.length);
-    const song = list[randomIndex];
-    const box = document.getElementById("randomResult");
-    box.classList.remove("show");
-    box.offsetWidth;
-    box.innerHTML = `🎶 ${song.name} - ${song.artist} (${song.genre.join("; ")})`;
+    const song=list[Math.floor(Math.random()*list.length)];
+    const box=document.getElementById("randomResult");
+    box.classList.remove("show"); box.offsetWidth;
+    box.innerHTML=`🎶 ${song.name} - ${song.artist} (${song.genre.join("; ")})`;
     box.classList.add("show");
 }
 </script>
-
 </body>
 </html>
