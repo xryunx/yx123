@@ -85,7 +85,7 @@ tr:nth-child(even) { background: rgba(74,63,47,0.03); }
 let songs = [];
 let filteredSongs = null;
 let genreList = [];
-const gsheetCSV = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID_HERE/export?format=csv"; // 用分號分隔的 CSV
+const gsheetCSV = "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID_HERE/export?format=csv";
 
 const genreButtonsDiv = document.getElementById("genreButtons");
 
@@ -95,11 +95,10 @@ fetch(gsheetCSV)
 .then(data=>{
     const rows = data.split("\n");
     rows.slice(1).forEach(row=>{
-        const cols = row.split(";"); // ⚡ 使用分號分隔
+        const cols = row.split(";");
         if(cols.length>=3){
             const song = {name: cols[0].trim(), artist: cols[1].trim(), genre: cols.slice(2).map(g=>g.trim()).filter(g=>g)};
             songs.push(song);
-            // 建立類型列表
             song.genre.forEach(g=>{
                 if(g && !genreList.includes(g)) genreList.push(g);
             });
@@ -144,7 +143,6 @@ function addSong(){
     if(!name || !artist || !genreStr){ alert("請填完整資訊"); return; }
     const genres = genreStr.split(";").map(g=>g.trim()).filter(g=>g);
     songs.push({name, artist, genre: genres});
-    // 更新類型按鈕
     genres.forEach(g=>{
         if(g && !genreList.includes(g)){
             genreList.push(g);
